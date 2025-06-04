@@ -12,7 +12,7 @@ def hello_world():
 @app.route('/exercices/')
 def exercices():
     return render_template('exercices.html') # 1test t
-  @app.route("/contact/")
+@app.route("/contact/")
 def MaPremiereAPI():
     return render_template("contact.html")
                                                                                                                
