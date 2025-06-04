@@ -42,7 +42,7 @@ def valeur_maximale(nombres):
         # Convertir chaque nombre de l'URL en une liste d'entiers
         liste = [int(n) for n in nombres.split('/') if n.strip() != '']
 
-Trouver la valeur maximale,
+#Trouver la valeur maximale,
         max_valeur = max(liste)
 
         return f"<h2>Les valeurs sont : {liste}</h2><p>La valeur maximale parmi ces valeurs est : {max_valeur}</p>"
