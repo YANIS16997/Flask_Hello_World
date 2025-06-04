@@ -50,4 +50,4 @@ def valeur_maximale(nombres):
         return "<h2>Erreur : Veuillez entrer uniquement des nombres entiers dans l’URL.</h2>"
                                                                                                                
 if __name__ == "__main__":
-  app.run(debug=True)
+  app.run(debug=True, host='0.0.0.0', port=5000)
