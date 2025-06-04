@@ -1,38 +1,36 @@
-name: Aperçu Temporaire
-
-on: [push]
+name: Docker + ngrok Preview
+on:
+  push:
+    branches: [ main, master ]
 
 jobs:
-  preview:
+  deploy-preview:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Cloner le dépôt
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Installer Ngrok
+    - name: Build Docker image
+      run: docker build -t flask-app .
+
+    - name: Run Flask app with ngrok
       run: |
+        sudo apt update
+        sudo apt install -y curl
         curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
         echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-        sudo apt update && sudo apt install ngrok
+        sudo apt update && sudo apt install -y ngrok
 
-    - name: Configurer Ngrok avec l'authtoken
-      run: ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+        ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
 
-    - name: Construire l’image Docker
-      run: docker build -t flask-ngrok .
+        docker run -d -p 5000:5000 --name flask-container flask-app
+        sleep 5
 
-    - name: Lancer le conteneur Flask en arrière-plan
-      run: docker run -d -p 5000:5000 flask-ngrok
-
-    - name: Lancer Ngrok et afficher l’URL
-      run: |
-        # ngrok http 5000 > ngrok.log &
-        # sleep 5
-        # echo "URL Temporaire :"
-        # curl -s http://localhost:5000/api/tunnels | grep -o 'https://[0-9a-z]*\.ngrok.io'
         ngrok http 5000 --log=stdout &
         sleep 10
 
-    - name: Maintenir le serveur temporairement (120 sec)
-      run: sleep 120
+        NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"[^"]*https[^"]*' | cut -d'"' -f4)
+        echo "🌐 URL publique : $NGROK_URL"
+
+        sleep 120
